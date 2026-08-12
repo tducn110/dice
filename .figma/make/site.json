@@ -1,0 +1,10 @@
+{
+  "description": "Engage in a fun clicker game where players spawn dice, earn money based on rolls, and purchase upgrades to enhance gameplay and strategy.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
