@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react"
+import { useTranslation } from "react-i18next"
 
 // ─── PIXEL ART CURSOR ────────────────────────────────────────────────────────
 // 0=transparent  1=outline(dark)  2=fill(light)
@@ -382,7 +383,11 @@ function IsoDice({
   const ln = (p1: number[], p2: number[], k: string) => (
     <line key={k} x1={p1[0]} y1={p1[1]} x2={p2[0]} y2={p2[1]} />
   )
-  const Dots = ({ dots, op = 1 }: { dots: [number, number][]; op?: number }) => (
+  interface DotsProps {
+    dots: [number, number][]
+    op?: number
+  }
+  const Dots = ({ dots, op = 1 }: DotsProps) => (
     <>
       {dots.map(([cx, cy], i) => (
         <circle
@@ -483,6 +488,9 @@ function IsoDice({
 
 // ─── APP ──────────────────────────────────────────────────────────────────────
 export default function App() {
+  const { t, i18n } = useTranslation()
+  const currentLanguage = i18n.resolvedLanguage?.startsWith("en") ? "en" : "vi"
+  const nextLanguage = currentLanguage === "vi" ? "en" : "vi"
   const [money, setMoney] = useState(0)
   const [totalEarned, setTotalEarned] = useState(0)
   const [dice, setDice] = useState<Die[]>([
@@ -556,7 +564,11 @@ export default function App() {
   )
 
   // get a die's pixel centre on the table
-  const getDiePos = (dieId: number): { x: number; y: number } | null => {
+  interface Pos {
+    x: number
+    y: number
+  }
+  const getDiePos = (dieId: number): Pos | null => {
     const el = dieElsRef.current[dieId]
     const tb = tableRef.current
     if (!el || !tb) return null
@@ -973,6 +985,14 @@ export default function App() {
           </div>
 
           <div className="hud-right">
+            <button
+              className="hud-pill"
+              type="button"
+              aria-label={t("settings.language")}
+              onClick={() => void i18n.changeLanguage(nextLanguage)}
+            >
+              {nextLanguage.toUpperCase()}
+            </button>
             <div className="hud-pill">x{effectiveMult.toFixed(1)}</div>
             <div className="hud-pill">{ownedCount} dice</div>
             {rollerCount > 0 && (
