@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import { useTranslation } from "react-i18next"
+import { useWinkIntegration } from "./integrations/wink/useWinkIntegration"
 
 // ─── PIXEL ART CURSOR ────────────────────────────────────────────────────────
 // 0=transparent  1=outline(dark)  2=fill(light)
@@ -493,6 +494,25 @@ export default function App() {
   const nextLanguage = currentLanguage === "vi" ? "en" : "vi"
   const [money, setMoney] = useState(0)
   const [totalEarned, setTotalEarned] = useState(0)
+  const wink = useWinkIntegration()
+  const roundStartedRef = useRef(false)
+  const lastSubmittedScoreRef = useRef(0)
+
+  useEffect(() => {
+    if (totalEarned > lastSubmittedScoreRef.current + 500) {
+      lastSubmittedScoreRef.current = totalEarned
+      wink.submitFinalScore({ score: Math.floor(totalEarned) })
+    }
+  }, [totalEarned, wink])
+
+  useEffect(() => {
+    return () => {
+      if (roundStartedRef.current) {
+        wink.gameplayStop()
+        roundStartedRef.current = false
+      }
+    }
+  }, [wink])
   const [dice, setDice] = useState<Die[]>([
     {
       id: uid++,
@@ -609,6 +629,11 @@ export default function App() {
   // ── ROLL DIE ─────────────────────────────────────────────────────────────
   const rollDie = useCallback(
     (dieId: number, isAuto = false, isEcho = false) => {
+      if (wink.hostPaused) return
+      if (!roundStartedRef.current) {
+        wink.gameplayStart()
+        roundStartedRef.current = true
+      }
       const die = diceRef.current.find((d) => d.id === dieId)
       if (!die || die.phase !== "idle") return
 
@@ -827,6 +852,7 @@ export default function App() {
     ]
 
     const t = setInterval(() => {
+      if (wink.hostPaused) return
       const idle = diceRef.current.filter((d) => d.phase === "idle")
       if (idle.length === 0) return
       // shuffle and pick up to `count` dice
