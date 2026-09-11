@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import { useTranslation } from "react-i18next"
 import { useWinkIntegration } from "./integrations/wink/useWinkIntegration"
+import { preloadCriticalResources, preloadNonCriticalResources } from "./utils/game-loader";
+import { completeGameLoading, onGameLoadingDismiss, setGameLoadingProgress } from "./utils/loading-controller";
+
 
 // ─── PIXEL ART CURSOR ────────────────────────────────────────────────────────
 // 0=transparent  1=outline(dark)  2=fill(light)
@@ -489,6 +492,21 @@ function IsoDice({
 
 // ─── APP ──────────────────────────────────────────────────────────────────────
 export default function App() {
+  // Unified PapaStudio loading screen lifecycle barrier
+  useEffect(() => {
+    setGameLoadingProgress(25);
+    const criticalPromise = preloadCriticalResources((pct) => {
+      setGameLoadingProgress(Math.min(95, pct));
+    });
+    void Promise.allSettled([criticalPromise]).then(() => {
+      completeGameLoading();
+    });
+    const unbind = onGameLoadingDismiss(() => {
+      preloadNonCriticalResources();
+    });
+    return unbind;
+  }, []);
+
   const { t, i18n } = useTranslation()
   const currentLanguage = i18n.resolvedLanguage?.startsWith("en") ? "en" : "vi"
   const nextLanguage = currentLanguage === "vi" ? "en" : "vi"
