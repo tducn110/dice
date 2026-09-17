@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="<!-- figma:lang -->">
+<html lang="en">
   <head>
     <!-- figma:head-start -->
     <meta charset="UTF-8" />
@@ -151,6 +151,7 @@
         }
 
         // Global API for React App
+        window.__PAPA_DISMISS_LOADING__ = dismissScreen;
         window.PapaLoading = {
           setProgress: function(pct) {
             targetProgress = Math.max(targetProgress, Math.min(99, pct));

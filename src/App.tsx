@@ -993,7 +993,7 @@ export default function App() {
         <header className="hud">
           <div className="hud-left">
             <div className="money-display">{fmt(money)}</div>
-            <div className="hud-sub">total {fmt(totalEarned)}</div>
+            <div className="hud-sub">{t("game.total")} {fmt(totalEarned)}</div>
             {prestigeCount > 0 && (
               <div className="prestige-badge">
                 P{prestigeCount} +{prestigeBonus.toFixed(1)}x
@@ -1004,7 +1004,7 @@ export default function App() {
           <div className="hud-center">
             {upgLvl.heat > 0 && (
               <div className="heat-wrap">
-                <span className="heat-label">HEAT</span>
+                <span className="heat-label">{t("game.heat")}</span>
                 <div className={`heat-bar${heatExploding ? " exploding" : ""}`}>
                   <div
                     className="heat-fill"
@@ -1017,13 +1017,13 @@ export default function App() {
             )}
             <div className="hud-badges">
               {streak >= 3 && (
-                <span className="badge badge-streak">STREAK x{streak}</span>
+                <span className="badge badge-streak">{t("game.streak", { count: streak })}</span>
               )}
               {isDebuffed && (
-                <span className="badge badge-cold">COLD -50%</span>
+                <span className="badge badge-cold">{t("game.cold")}</span>
               )}
               {coldStreak >= 2 && !isDebuffed && (
-                <span className="badge badge-coldwarn">cold x{coldStreak}</span>
+                <span className="badge badge-coldwarn">{t("game.coldWarn", { count: coldStreak })}</span>
               )}
             </div>
           </div>
@@ -1038,15 +1038,15 @@ export default function App() {
               {nextLanguage.toUpperCase()}
             </button>
             <div className="hud-pill">x{effectiveMult.toFixed(1)}</div>
-            <div className="hud-pill">{ownedCount} dice</div>
+            <div className="hud-pill">{t("game.diceCount", { count: ownedCount })}</div>
             {rollerCount > 0 && (
               <div className="hud-pill hud-pill-active">
-                {rollerCount} auto / {rollInterval}s
+                {t("game.autoRoll", { count: rollerCount, interval: rollInterval })}
               </div>
             )}
             {canPrestige && (
               <button className="prestige-btn" onClick={doPrestige}>
-                PRESTIGE&nbsp;<span className="prestige-gain">+0.5x</span>
+                {t("game.prestige")}&nbsp;<span className="prestige-gain">+0.5x</span>
               </button>
             )}
           </div>
@@ -1091,7 +1091,7 @@ export default function App() {
                   <div className="die-spinning-overlay" />
                 )}
                 {d.phase === "idle" && d.value === 0 && (
-                  <div className="die-tap-hint">CLICK</div>
+                  <div className="die-tap-hint">{t("game.click")}</div>
                 )}
                 {d.phase === "idle" && d.value > 0 && (
                   <div className="die-value-label">{d.value}</div>
@@ -1114,12 +1114,12 @@ export default function App() {
           {/* Jackpot overlay */}
           {jackpotActive && (
             <div className="jackpot-overlay">
-              <div className="jackpot-text">JACKPOT</div>
+              <div className="jackpot-text">{t("game.jackpot")}</div>
             </div>
           )}
           {heatExploding && (
             <div className="heat-overlay">
-              <div className="heat-burst-text">HEAT BURST</div>
+              <div className="heat-burst-text">{t("game.heatBurst")}</div>
             </div>
           )}
 
@@ -1131,16 +1131,16 @@ export default function App() {
                 onClick={buyDie}
                 disabled={!canBuyDie}
               >
-                <span className="buy-die-label">BUY DIE</span>
+                <span className="buy-die-label">{t("game.buyDie")}</span>
                 <span className="buy-die-cost">{fmt(nextDieCost ?? 0)}</span>
               </button>
             ) : (
-              <div className="buy-die-max">MAX DICE</div>
+              <div className="buy-die-max">{t("game.maxDice")}</div>
             )}
           </div>
 
           {/* Table hint */}
-          <div className="table-hint">CLICK A DIE TO ROLL IT</div>
+          <div className="table-hint">{t("game.tableHint")}</div>
         </div>
 
         {/* ── SHOP ── */}
@@ -1152,7 +1152,7 @@ export default function App() {
                 className={`shop-tab${activeTab === tab ? " active" : ""}`}
                 onClick={() => setActiveTab(tab)}
               >
-                {tab}
+                {t(`shop.tabs.${tab}` as const)}
               </button>
             ))}
           </div>
@@ -1173,14 +1173,14 @@ export default function App() {
                 >
                   <div className="upg-tag">{upg.tag}</div>
                   <div className="upgrade-info">
-                    <div className="upgrade-name">{upg.name}</div>
+                    <div className="upgrade-name">{t(`shop.upgrades.${upg.id}` as const) || upg.name}</div>
                     <div className="upgrade-desc">
-                      {maxed ? "MAXED" : upg.labels[lv]}
+                      {maxed ? t("game.maxed") : upg.labels[lv]}
                     </div>
                   </div>
                   <div className="upgrade-right">
                     <div className="upgrade-cost">
-                      {maxed ? "MAX" : fmt(cost)}
+                      {maxed ? t("game.max") : fmt(cost)}
                     </div>
                     <div className="upgrade-pips">
                       {Array.from({ length: upg.costs.length }, (_, i) => (
