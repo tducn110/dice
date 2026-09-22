@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next"
 import { useWinkIntegration } from "./integrations/wink/useWinkIntegration"
 import { preloadCriticalResources, preloadNonCriticalResources } from "./utils/game-loader";
 import { completeGameLoading, onGameLoadingDismiss, setGameLoadingProgress } from "./utils/loading-controller";
+import { playButtonClick } from "./utils/buttonClick";
 
 
 // ─── PIXEL ART CURSOR ────────────────────────────────────────────────────────
@@ -507,6 +508,26 @@ export default function App() {
     return unbind;
   }, []);
 
+  useEffect(() => {
+    const blockCopyAction = (event: Event) => {
+      event.preventDefault();
+    };
+
+    document.addEventListener("copy", blockCopyAction, true);
+    document.addEventListener("cut", blockCopyAction, true);
+    document.addEventListener("selectstart", blockCopyAction, true);
+    document.addEventListener("dragstart", blockCopyAction, true);
+    document.addEventListener("contextmenu", blockCopyAction, true);
+
+    return () => {
+      document.removeEventListener("copy", blockCopyAction, true);
+      document.removeEventListener("cut", blockCopyAction, true);
+      document.removeEventListener("selectstart", blockCopyAction, true);
+      document.removeEventListener("dragstart", blockCopyAction, true);
+      document.removeEventListener("contextmenu", blockCopyAction, true);
+    };
+  }, []);
+
   const { t, i18n } = useTranslation()
   const currentLanguage = i18n.resolvedLanguage?.startsWith("en") ? "en" : "vi"
   const nextLanguage = currentLanguage === "vi" ? "en" : "vi"
@@ -906,6 +927,7 @@ export default function App() {
 
   // ── buy a new die ────────────────────────────────────────────────────────
   const buyDie = useCallback(() => {
+    playButtonClick()
     const owned = diceRef.current.length
     if (owned >= SLOTS.length) return
     const cost = DIE_COSTS[owned - 1]
@@ -928,6 +950,7 @@ export default function App() {
   // ── buy upgrade ──────────────────────────────────────────────────────────
   const buyUpgrade = useCallback(
     (id: string) => {
+      playButtonClick()
       const def = UPGRADES.find((u) => u.id === id)!
       const lv = upgLvl[id]
       if (lv >= def.costs.length) return
@@ -941,6 +964,7 @@ export default function App() {
 
   // ── prestige ─────────────────────────────────────────────────────────────
   const doPrestige = () => {
+    playButtonClick()
     setMoney(0)
     setTotalEarned(0)
     setStreak(0)
@@ -1033,7 +1057,7 @@ export default function App() {
               className="hud-pill"
               type="button"
               aria-label={t("settings.language")}
-              onClick={() => void i18n.changeLanguage(nextLanguage)}
+              onClick={() => { playButtonClick(); void i18n.changeLanguage(nextLanguage); }}
             >
               {nextLanguage.toUpperCase()}
             </button>
@@ -1078,7 +1102,7 @@ export default function App() {
                   left: `calc(${sx * 100}% - 42px)`,
                   top: `calc(${sy * 100}% - 56px)`,
                 }}
-                onClick={() => rollDie(d.id)}
+                onClick={() => { playButtonClick(); rollDie(d.id); }}
               >
                 <IsoDice
                   value={d.value}
@@ -1150,7 +1174,7 @@ export default function App() {
               <button
                 key={tab}
                 className={`shop-tab${activeTab === tab ? " active" : ""}`}
-                onClick={() => setActiveTab(tab)}
+                onClick={() => { playButtonClick(); setActiveTab(tab); }}
               >
                 {t(`shop.tabs.${tab}` as const)}
               </button>
